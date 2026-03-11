@@ -38,7 +38,8 @@ enum GameState {
     MENU,
     RUNNING,
     PAUSED,
-    GAME_OVER
+    GAME_OVER,
+    VICTORY
 };
 
 class Snake {
@@ -192,13 +193,19 @@ public:
 
     void food_collision() {
         if (Vector2Equals(s.body[0], f.position)) {
-            f.position = f.randomPos(s.body);
             s.add_body = true;
             score++;
 
             if (score > bestScore) {
                 bestScore = score;
             }
+
+            if ((int)s.body.size() + 1 >= ccount * ccount) {
+                state = VICTORY;
+                return;
+            }
+
+            f.position = f.randomPos(s.body);
         }
     }
 
@@ -241,7 +248,7 @@ int main()
             if (g.state == MENU) {
                 g.start(false);
             }
-            else if (g.state == GAME_OVER) {
+            else if (g.state == GAME_OVER || g.state == VICTORY) {
                 g.start(true);
             }
             else if (g.state == RUNNING || g.state == PAUSED) {
@@ -295,7 +302,7 @@ int main()
         DrawText("W, A, S, D - movement", GetScreenWidth() - 255, statsY + 35, 20, grey);
         DrawText("SPACE - start/pause", GetScreenWidth() - 255, statsY + 60, 20, grey);
 
-        if (g.state == MENU || g.state == PAUSED || g.state == GAME_OVER) {
+        if (g.state == MENU || g.state == PAUSED || g.state == GAME_OVER || g.state == VICTORY) {
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Color{ 0, 0, 0, 170 });
         }
 
@@ -353,6 +360,31 @@ int main()
                 centerY - 30,
                 fontSize1,
                 red);
+
+            DrawText(text2,
+                (GetScreenWidth() - text2Width) / 2,
+                centerY + 20,
+                fontSize2,
+                white);
+        }
+
+        if (g.state == VICTORY) {
+            const char* text1 = "Victory";
+            const char* text2 = "Press SPACE to restart";
+
+            int fontSize1 = 40;
+            int fontSize2 = 28;
+
+            int text1Width = MeasureText(text1, fontSize1);
+            int text2Width = MeasureText(text2, fontSize2);
+
+            int centerY = GetScreenHeight() / 2;
+
+            DrawText(text1,
+                (GetScreenWidth() - text1Width) / 2,
+                centerY - 30,
+                fontSize1,
+                green);
 
             DrawText(text2,
                 (GetScreenWidth() - text2Width) / 2,
